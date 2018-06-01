@@ -1,7 +1,9 @@
 # Imports
-import pygame
+import pygame, os
+os.environ['SDL_VIDEO_CENTERED'] = '1'
 import math
-from ctypes import windll, Structure, c_long, byref
+
+
 
 
 # Initialize game engine
@@ -9,8 +11,8 @@ pygame.init()
 
 
 # Window
-WIDTH = 1560
-HEIGHT = 1600
+WIDTH = 1350
+HEIGHT = 730
 SIZE = (WIDTH, HEIGHT)
 TITLE = "Space War"
 screen = pygame.display.set_mode(SIZE)      ########################### work on stair case to funnel trap evode
@@ -100,20 +102,13 @@ class Pixel(pygame.sprite.Sprite):
 
             
         
-class POINT(Structure):
-    _fields_ = [("x", c_long), ("y", c_long)]
 
 
 
-def get_mouse_x():
-    pt = POINT()
-    windll.user32.GetCursorPos(byref(pt))
-    return (pt.x)
 
-def get_mouse_y():
-    pt = POINT()
-    windll.user32.GetCursorPos(byref(pt))
-    return (pt.y)
+
+
+
 
           
 
@@ -142,16 +137,29 @@ class Ship(pygame.sprite.Sprite):
 
     
 
-    def cast_fire(self, mouse_x, mouse_y):
+    def cast_fire(self, mouse_pos):
         spell = Fire(fire_img)
 
         spell.rect.centerx = self.rect.centerx
         spell.rect.bottom = self.rect.top
         spell.side = 1
-        if (self.rect.centerx-mouse_x) < (math.sqrt(((self.rect.centery-mouse_y)**2)+((self.rect.x-mouse_x)**2))):
-            spell.angle = math.degrees(math.asin((self.rect.centerx-mouse_x)/(math.sqrt(((self.rect.centery-mouse_y)**2)+((self.rect.x-mouse_x)**2)))))
+        
+        
+        if self.rect.centerx-mouse_pos[0] == 0:
+            spell.angle = 90
+        elif self.rect.top-mouse_pos[1] <= 0:
+            spell.angle = 90
+        elif (self.rect.centerx-mouse_pos[0]) == (self.rect.top-mouse_pos[1]) and (mouse_pos[0] < self.rect.centerx):
+            spell.angle = 45
+        elif (self.rect.centerx-mouse_pos[0]) == (self.rect.top-mouse_pos[1]) and (mouse_pos[0] > self.rect.centerx):
+            spell.angle = -45
+        elif (self.rect.centerx-mouse_pos[0]) > (self.rect.top-mouse_pos[1]):
+            spell.angle = math.degrees(math.atan((self.rect.top-mouse_pos[1])/(self.rect.centerx-mouse_pos[0])))
+        elif (self.rect.centerx-mouse_pos[0]) < (self.rect.top-mouse_pos[1]):
+            spell.angle = (math.degrees(math.atan((self.rect.top-mouse_pos[1])/(self.rect.centerx-mouse_pos[0]))))
         else:
-            spell.angle = math.degrees(math.atan((self.rect.centerx-mouse_x)/(math.sqrt(((self.rect.centery-mouse_y)**2)+((self.rect.x-mouse_x)**2)))))
+            spell.angle = 90
+        
         print(spell.angle)
         
         
@@ -221,10 +229,15 @@ class Fire(pygame.sprite.Sprite):
     def move_right(self, ship):
         self.rect.x += ship.speed
 
-    def update(self):
+    def update(self, beat):
         if self.side == 1:
-            self.rect.x -= self.speed*((self.angle/90))
-            self.rect.y -= self.speed*(((90-self.angle)/90))
+            if beat%(int(1)) == 0:
+                if self.angle >= 0:
+                    self.rect.x -= (self.speed*(90-self.angle))#######################normalizing a vector
+                    self.rect.y -= (self.speed*(((self.angle))))
+                elif self.angle < 0:
+                    self.rect.x += (self.speed*(90-abs(self.angle)))
+                    self.rect.y -= (self.speed*(abs(self.angle)))
         
             
 
@@ -604,9 +617,12 @@ while not done:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             done = True
+        
         elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                done = True
             if event.key == pygame.K_1:
-                ship.cast_fire(mouse_x, mouse_y)
+                ship.cast_fire(mouse_pos)
 
     
 
@@ -647,7 +663,7 @@ while not done:
 
     pixels.update(spells1, mobs)
     player.update()
-    spells1.update()
+    spells1.update(beat)
 
     spells2.update()
     mobs.update(spells1, spells2)
@@ -674,8 +690,7 @@ while not done:
 
     
     # Update screen (Actually draw the picture in the window.)
-    mouse_x = get_mouse_x()
-    mouse_y = get_mouse_y()
+    mouse_pos = pygame.mouse.get_pos()
     pygame.display.flip()
 
 
