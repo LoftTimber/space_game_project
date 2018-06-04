@@ -11,8 +11,12 @@ pygame.init()
 
 
 # Window
-WIDTH = 1350
-HEIGHT = 730
+##WIDTH = 1350
+##HEIGHT = 730
+##WIDTH = 2550
+##HEIGHT = 1565
+WIDTH = 704
+HEIGHT = 704
 SIZE = (WIDTH, HEIGHT)
 TITLE = "Space War"
 screen = pygame.display.set_mode(SIZE)      ########################### work on stair case to funnel trap evode
@@ -31,26 +35,92 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 YELLOW = (255, 255, 0)
 GREEN = (0, 255, 0)
+##R = (255, 0, 0)     #RED
+##O = (255, 165, 0)   #ORANGE
+##Y = (255, 255, 0)   #YELLOW
+##G = (0, 128, 0)     #GREEN
+##S = (0,0,255)       #BLUE
+##I = (75,0,130)      #INDIGO
+##V = (238,130,238)   #VIOLET
+##
+##
+##
+##
+##
+##
+##
+##f = (34, 139, 34)
+##W = (255, 255, 255) #WHITE
+##b = (75, 200, 255)  #SKYBLUE
+##l = (176, 196, 222) #LIGHTSTEELBLUE
+##DARKERWHITE = (235, 245, 255) #DARKERWHITE
+##B = (0, 0, 0)       #BLACK
+##o = (255,80,0)      #DARKERORANGE
+##g = (34, 139, 34)   #FORESTGREEN
 
 # Images
 pix1_img = pygame.image.load('space_game_stuff/images/pixel.png')
-ship_img = pygame.image.load('space_game_stuff/images/player_facing_left.png')
+B_pix = pygame.image.load('space_game_stuff/images/pixel_1.png')
+O_pix = pygame.image.load('space_game_stuff/images/gray_pixel.png')
+f_pix = pygame.image.load('space_game_stuff/images/pixel_1.png')
+o_pix = pygame.image.load('space_game_stuff/images/pixel_1.png')
+ship_img = pygame.image.load('space_game_stuff/images/pixel.png')
 fire_img = pygame.image.load('space_game_stuff/images/pixel.png')
 thunder_img = pygame.image.load('space_game_stuff/images/pixel.png')
+left_arrow = pygame.image.load('space_game_stuff/images/pixel.png')
+right_arrow = pygame.image.load('space_game_stuff/images/pixel.png')
+up_arrow = pygame.image.load('space_game_stuff/images/pixel.png')
+down_arrow = pygame.image.load('space_game_stuff/images/pixel.png')
+B_pix = pygame.transform.scale(B_pix, (64, 64))
+O_pix = pygame.transform.scale(O_pix, (64, 64))
+f_pix = pygame.transform.scale(f_pix, (64, 64))
+o_pix = pygame.transform.scale(o_pix, (64, 64))
+left_arrow = pygame.transform.scale(left_arrow, (64, 64))
+right_arrow = pygame.transform.scale(right_arrow, (64, 64))
+up_arrow = pygame.transform.scale(up_arrow, (64, 64))
+down_arrow = pygame.transform.scale(down_arrow, (64, 64))
 ##player_facing_left
 ##player_jump_left
 ##player_jump_right
 
 # Game classes
 class Pixel(pygame.sprite.Sprite):
-    def __init__(self, x, y, image):
+    def __init__(self, image):
         super().__init__()
 
         self.image = image
         self.rect = image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-        self.filled = False
+        
+        
+        
+        
+        self.type = 0
+        
+
+    def move_left(self, ship):
+        self.rect.x -= ship.speed
+        
+    def move_right(self, ship):
+        self.rect.x += ship.speed
+
+    def move_up(self, ship):
+        self.rect.y -= ship.speed
+        
+    def move_down(self, ship):
+        self.rect.y += ship.speed
+
+    def move_left_half(self, ship):
+        self.rect.x -= ship.speed/2
+        
+        
+    def move_right_half(self, ship):
+        self.rect.x += ship.speed/2
+
+    def move_up_half(self, ship):
+        self.rect.y -= ship.speed/2
+        
+    def move_down_half(self, ship):
+        self.rect.y += ship.speed/2
 
     def update(self, spells1, mobs):
 
@@ -121,46 +191,138 @@ class Ship(pygame.sprite.Sprite):
         self.rect = image.get_rect()
         self.rect.x = x
         self.rect.y = y
+        self.rect.top = x
+        self.rect.centerx = x+32
+        self.rect.centery = y+32
+        self.rect.bottom = y+64
+        
 
-        self.speed = 10
+        self.speed = 4
         self.shield = 100
         self.shot_range = 500
         
-
-    def move_left(self):
-        self.rect.x -= self.speed
         
-    def move_right(self):
-        self.rect.x += self.speed
 
+    def move_left(self, ship):
+        self.rect.x -= ship.speed
+        
+    def move_right(self, ship):
+        self.rect.x += ship.speed
+
+    def move_up(self, ship):
+        self.rect.y -= ship.speed
+        
+    def move_down(self, ship):
+        self.rect.y += ship.speed
+
+    def move_left_half(self, ship):
+        self.rect.x -= ship.speed/2
+        
+    def move_right_half(self, ship):
+        self.rect.x += ship.speed/2
+
+    def move_up_half(self, ship):
+        self.rect.y -= ship.speed/2
+        
+    def move_down_half(self, ship):
+        self.rect.y += ship.speed/2
+    
+    def make_arrow(self, mouse_pos):
+        arrow = Fire(fire_img)
+
+        
+        if self.rect.centerx-mouse_pos[0] == 0:
+            arrow.angle = 90
+        elif (self.rect.centerx-mouse_pos[0]) == (self.rect.centery-mouse_pos[1]) and (mouse_pos[0] < self.rect.centerx)\
+             and mouse_pos[1] <= self.rect.centery:
+            arrow.angle = 45
+        elif (self.rect.centerx-mouse_pos[0]) == (self.rect.centery-mouse_pos[1]) and (mouse_pos[0] > self.rect.centerx)\
+             and mouse_pos[1] <= self.rect.centery:
+            arrow.angle = -45
+        elif (self.rect.centerx-mouse_pos[0]) == (self.rect.centery-mouse_pos[1]) and (mouse_pos[0] < self.rect.centerx)\
+             and mouse_pos[1] >= self.rect.centery:
+            arrow.angle = 45
+        elif (self.rect.centerx-mouse_pos[0]) == (self.rect.centery-mouse_pos[1]) and (mouse_pos[0] > self.rect.centerx)\
+             and mouse_pos[1] >= self.rect.centery:
+            arrow.angle = -45
+        elif (self.rect.centerx-mouse_pos[0]) > (self.rect.centery-mouse_pos[1]):
+            arrow.angle = math.degrees(math.atan((self.rect.centery-mouse_pos[1])/(self.rect.centerx-mouse_pos[0])))
+        elif (self.rect.centerx-mouse_pos[0]) < (self.rect.centery-mouse_pos[1]):
+            arrow.angle = (math.degrees(math.atan((self.rect.centery-mouse_pos[1])/(self.rect.centerx-mouse_pos[0]))))
+        else:
+            arrow.angle = 90
+        
+        
+        
+        
+        if (arrow.angle >= 67 or arrow.angle <= -67) and mouse_pos[1] <= self.rect.centery:
+            arrow.rect.centerx = self.rect.centerx
+            arrow.rect.bottom = self.rect.top
+            real_angle = 0
+        elif arrow.angle >= 23 and mouse_pos[1] <= self.rect.centery:
+            arrow.rect.centerx = self.rect.centerx-64
+            arrow.rect.bottom = self.rect.top
+            real_angle = 315
+        elif arrow.angle <= -23 and mouse_pos[1] <= self.rect.centery:
+            arrow.rect.centerx = self.rect.centerx+64
+            arrow.rect.bottom = self.rect.top
+            real_angle = 45
+        elif arrow.angle > -23 and mouse_pos[0] <= self.rect.centerx and mouse_pos[1] <= self.rect.centery:
+            arrow.rect.centerx = self.rect.centerx-64
+            arrow.rect.bottom = self.rect.bottom
+            real_angle = 90
+        elif arrow.angle > -23 and mouse_pos[0] >= self.rect.centerx and mouse_pos[1] <= self.rect.centery:
+            arrow.rect.centerx = self.rect.centerx+64
+            arrow.rect.bottom = self.rect.bottom
+            real_angle = 270
+        elif (arrow.angle >= 67 or arrow.angle <= -67) and mouse_pos[1] >= self.rect.centery:
+            arrow.rect.centerx = self.rect.centerx
+            arrow.rect.top = self.rect.bottom
+            real_angle = 180
+        elif arrow.angle >= 23 and mouse_pos[1] >= self.rect.centery:
+            arrow.rect.centerx = self.rect.centerx+64
+            arrow.rect.top = self.rect.bottom
+            real_angle = 135
+        elif arrow.angle <= -23 and mouse_pos[1] >= self.rect.centery:
+            arrow.rect.centerx = self.rect.centerx-64
+            arrow.rect.top = self.rect.bottom
+            real_angle = 225
+        elif arrow.angle > -23 and mouse_pos[0] <= self.rect.centerx and mouse_pos[1] >= self.rect.centery:
+            arrow.rect.centerx = self.rect.centerx-64
+            arrow.rect.bottom = self.rect.bottom
+            real_angle = 270
+        elif arrow.angle > -23 and mouse_pos[0] >= self.rect.centerx and mouse_pos[1] >= self.rect.centery:
+            arrow.rect.centerx = self.rect.centerx+64
+            arrow.rect.bottom = self.rect.bottom
+            real_angle = 135
+        
+        arrows.add(arrow)
     
 
-    
-
-    def cast_fire(self, mouse_pos):
+    def cast_fire(self, arrow):
         spell = Fire(fire_img)
 
         spell.rect.centerx = self.rect.centerx
         spell.rect.bottom = self.rect.top
         spell.side = 1
         
-        
+##        spell.point = ((mouse_pos[0] - self.rect.centerx), (self.rect.top - mouse_pos[1]))
         if self.rect.centerx-mouse_pos[0] == 0:
             spell.angle = 90
-        elif self.rect.top-mouse_pos[1] <= 0:
+        elif self.rect.centery-mouse_pos[1] <= 0:
             spell.angle = 90
-        elif (self.rect.centerx-mouse_pos[0]) == (self.rect.top-mouse_pos[1]) and (mouse_pos[0] < self.rect.centerx):
+        elif (self.rect.centerx-mouse_pos[0]) == (self.rect.centery-mouse_pos[1]) and (mouse_pos[0] < self.rect.centerx):
             spell.angle = 45
-        elif (self.rect.centerx-mouse_pos[0]) == (self.rect.top-mouse_pos[1]) and (mouse_pos[0] > self.rect.centerx):
+        elif (self.rect.centerx-mouse_pos[0]) == (self.rect.centery-mouse_pos[1]) and (mouse_pos[0] > self.rect.centerx):
             spell.angle = -45
-        elif (self.rect.centerx-mouse_pos[0]) > (self.rect.top-mouse_pos[1]):
-            spell.angle = math.degrees(math.atan((self.rect.top-mouse_pos[1])/(self.rect.centerx-mouse_pos[0])))
-        elif (self.rect.centerx-mouse_pos[0]) < (self.rect.top-mouse_pos[1]):
-            spell.angle = (math.degrees(math.atan((self.rect.top-mouse_pos[1])/(self.rect.centerx-mouse_pos[0]))))
+        elif (self.rect.centerx-mouse_pos[0]) > (self.rect.centery-mouse_pos[1]):
+            spell.angle = math.degrees(math.atan((self.rect.centery-mouse_pos[1])/(self.rect.centerx-mouse_pos[0])))
+        elif (self.rect.centerx-mouse_pos[0]) < (self.rect.centery-mouse_pos[1]):
+            spell.angle = (math.degrees(math.atan((self.rect.centery-mouse_pos[1])/(self.rect.centerx-mouse_pos[0]))))
         else:
             spell.angle = 90
         
-        print(spell.angle)
+        
         
         
         spells1.add(spell)
@@ -194,16 +356,124 @@ class Ship(pygame.sprite.Sprite):
         
         spells2.add(spell)
 
-    def update(self):
-        hit_list = pygame.sprite.spritecollide(self, spells1, False)
-        for spell in spells1:
-            spell.damage = spell.damage
-        for hit in hit_list:
-            self.shield -= spell.damage
+    def update_vertical(self):
+        collide = False
+        if vel_down == True:
+            hit_list = pygame.sprite.spritecollide(self, pixels, False)
+            for hit in hit_list:
+                if hit.type == "black":
+                    collide = True
+                    
+            if collide == True:
+                mob1.move_down(self)
+                for s in spells1:
+                    s.move_down(self)
+                for p in pixels:
+                    p.move_down(self)
 
-            
-        if self.shield <= 0:
-            self.kill()
+
+        collide = False
+        if vel_up == True:
+            hit_list = pygame.sprite.spritecollide(self, pixels, False)
+            for hit in hit_list:
+                if hit.type == "black":
+                    collide = True
+                    
+            if collide == True:
+                mob1.move_up(self)
+                for s in spells1:
+                    s.move_up(self)
+                for p in pixels:
+                    p.move_up(self)
+    def update_horizontal(self):
+        collide = False
+        if vel_left == True:
+            hit_list = pygame.sprite.spritecollide(self, pixels, False)
+            for hit in hit_list:
+                if hit.type == "black":
+                    collide = True
+                    
+            if collide == True:
+                mob1.move_left(self)
+                for s in spells1:
+                    s.move_left(self)
+                for p in pixels:
+                    p.move_left(self)
+
+
+        collide = False
+        if vel_right == True:
+            hit_list = pygame.sprite.spritecollide(self, pixels, False)
+            for hit in hit_list:
+                if hit.type == "black":
+                    collide = True
+                    
+            if collide == True:
+                mob1.move_right(self)
+                for s in spells1:
+                    s.move_right(self)
+                for p in pixels:
+                    p.move_right(self)
+
+    def update_vertical_half(self):
+        collide = False
+        if vel_down == True:
+            hit_list = pygame.sprite.spritecollide(self, pixels, False)
+            for hit in hit_list:
+                if hit.type == "black":
+                    collide = True
+                    
+            if collide == True:
+                mob1.move_down_half(self)
+                for s in spells1:
+                    s.move_down_half(self)
+                for p in pixels:
+                    p.move_down_half(self)
+
+
+        collide = False
+        if vel_up == True:
+            hit_list = pygame.sprite.spritecollide(self, pixels, False)
+            for hit in hit_list:
+                if hit.type == "black":
+                    collide = True
+                    
+            if collide == True:
+                mob1.move_up_half(self)
+                for s in spells1:
+                    s.move_up_half(self)
+                for p in pixels:
+                    p.move_up_half(self)
+    def update_horizontal_half(self):
+        collide = False
+        if vel_left == True:
+            hit_list = pygame.sprite.spritecollide(self, pixels, False)
+            for hit in hit_list:
+                if hit.type == "black":
+                    collide = True
+                    
+            if collide == True:
+                mob1.move_left_half(self)
+                for s in spells1:
+                    s.move_left_half(self)
+                for p in pixels:
+                    p.move_left_half(self)
+
+
+        collide = False
+        if vel_right == True:
+            hit_list = pygame.sprite.spritecollide(self, pixels, False)
+            for hit in hit_list:
+                if hit.type == "black":
+                    collide = True
+                    
+            if collide == True:
+                mob1.move_right_half(self)
+                for s in spells1:
+                    s.move_right_half(self)
+                for p in pixels:
+                    p.move_right_half(self)
+        
             
 
         
@@ -229,15 +499,30 @@ class Fire(pygame.sprite.Sprite):
     def move_right(self, ship):
         self.rect.x += ship.speed
 
+    def move_up(self, ship):
+        self.rect.y -= ship.speed
+        
+    def move_down(self, ship):
+        self.rect.y += ship.speed
+
     def update(self, beat):
         if self.side == 1:
-            if beat%(int(1)) == 0:
+##            if beat%(int(2)) == 0:
+##                blast = pygame.math.Vector2(self.point)
+##                self.gud = blast.normalize()
+##                self.rect.x += (self.speed*self.gud[0])                     #######################normalizing a vector
+##                self.rect.y -= (self.speed*self.gud[1])
+##                magnitude = math.sqrt((self.point[0] - (self.rect.centerx - ship.rect.centerx))**2 + (self.point[1] - (ship.rect.top - self.rect.centery))**2)
+##                
+##                self.rect.x += ((self.point[0] - (self.rect.centerx - ship.rect.centerx))/magnitude)*self.speed
+##                self.rect.y -= ((self.point[1] - (ship.rect.top - self.rect.centery))/magnitude)*self.speed
+            if beat%(int(2)) == 0:
                 if self.angle >= 0:
-                    self.rect.x -= (self.speed*(90-self.angle))#######################normalizing a vector
-                    self.rect.y -= (self.speed*(((self.angle))))
+                    self.rect.x -= (self.speed*(90-self.angle))/2
+                    self.rect.y -= (self.speed*(((self.angle))))/2
                 elif self.angle < 0:
-                    self.rect.x += (self.speed*(90-abs(self.angle)))
-                    self.rect.y -= (self.speed*(abs(self.angle)))
+                    self.rect.x += (self.speed*(90-abs(self.angle)))/2
+                    self.rect.y -= (self.speed*(abs(self.angle)))/2
         
             
 
@@ -315,6 +600,24 @@ class Mob(pygame.sprite.Sprite):
         
     def move_right(self, ship):
         self.rect.x += ship.speed
+
+    def move_up(self, ship):
+        self.rect.y -= ship.speed
+        
+    def move_down(self, ship):
+        self.rect.y += ship.speed
+
+    def move_left_half(self, ship):
+        self.rect.x -= ship.speed/2
+        
+    def move_right_half(self, ship):
+        self.rect.x += ship.speed/2
+
+    def move_up_half(self, ship):
+        self.rect.y -= ship.speed/2
+        
+    def move_down_half(self, ship):
+        self.rect.y += ship.speed/2
 
     def move(self, spells1, spells2):
 
@@ -566,7 +869,93 @@ class Fleet:
     def update(self):
         pass
 
+
+
+def level_1():
+    block_line1= [0,0,0,0,0,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8]
+    block_line2= [8,0,0,0,0,0,0,0,0,0,8]
+    block_line3= [8,0,0,0,0,0,0,0,0,0,8]
+    block_line4= [8,0,0,0,0,0,0,0,0,0,8]
+    block_line5= [0,0,0,0,0,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8]
+    block_line6= [8,0,0,0,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8]
+    block_line7= [8,0,0,0,0,0,0,0,0,0,8,0,0,0,0,0]
+    block_line8= [8,0,0,0,0,0,0,0,0,0,0]
+    block_line9= [8,0,0,0,0,0,0,0,0,0,0]
+    block_line10=[8,0,0,0,0,0,0,0,0,0,0]
+    block_line11=[8]
+    block_line12=[8]
+    block_line13=[8]
+    block_line14=[8]
+    block_line15=[8]
+    block_line16=[8,8,8,8,8,8,8,8,8,8,0,0,0,0,0,0,8]
+    block_line17=[8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8]
     
+    
+    level_1_layout = [block_line1,block_line2,block_line3,block_line4,block_line5,block_line6,\
+                      block_line7,block_line8,block_line9,block_line10,block_line11,block_line12\
+                      ,block_line13,block_line14,block_line15,block_line16,block_line17]
+    return level_1_layout
+
+
+level_layout_list = [level_1()]
+
+pixels = pygame.sprite.Group()
+
+def create_level(level_layout_list, level_on):
+    global pixel_items
+     
+    
+    level_on_layout = level_layout_list[level_on-1]
+    
+    line = 0
+    
+    
+    for i in range(len(level_on_layout)):
+        pos = 0
+        current_line = level_on_layout[line]
+        for i in range(len(current_line)):
+            pix_type = current_line[pos]
+            if pix_type == 0:
+                pass
+            else:
+                if pix_type == 8:
+                    pix = Pixel(B_pix)
+                    pix.rect.centerx = (pos*64)+32
+                    pix.rect.y = (line*64)
+                    pix.rect.bottom = (line*64)+64
+                    pix.type = "black"
+                    pixels.add(pix)
+                if pix_type == 1:
+                    pix = Pixel(O_pix)
+                    pix.rect.centerx = (pos*64)+32
+                    pix.rect.y = (line*64)
+                    pix.rect.bottom = (line*64)+64
+                    pix.type = "orange"
+                    pixels.add(pix)
+                if pix_type == 3:
+                    pix = Pixel(o_pix)
+                    pix.rect.centerx = (pos*64)+32
+                    pix.rect.y = (line*64)
+                    pix.rect.bottom = (line*64)+64
+                    pix.type = "dark_orange"
+                    pixels.add(pix)
+
+                
+                    
+                
+                
+                
+                
+                
+                
+            
+            
+            pos += 1
+        line += 1
+    
+    
+
+            
 metronome = 60
 beat = 0
 
@@ -574,31 +963,32 @@ sixteenth = int((refresh_rate**2/metronome)/4)
 eighth = sixteenth*2
 quarter = sixteenth*4
 # Make game objects
-pix_num = 0
-pix_line = 0
-pix_type = pix1_img
-pixel_items = []
-for i in range(9):
-    pix_num = 0
-    for i in range(12):
-        pixel_items.append(Pixel(pix_num, pix_line, pix_type))
-        pix_num += 64
-    pix_line += 64
+##pix_num = 0
+##pix_line = 0
+##pix_type = pix1_img
+##pixel_items = []
+##for i in range(9):
+##    pix_num = 0
+##    for i in range(12):
+##        pixel_items.append(Pixel(pix_num, pix_line, pix_type))
+##        pix_num += 64
+##    pix_line += 64
 
-ship = Ship(384, 536, ship_img)
+ship = Ship(320, 320, ship_img)
 mob1 = Mob(384, 64, ship_img)
 ##mob2 = Mob(500, 64, ship_img)
 
 
 
-
+level_on = 1
+create_level(level_layout_list, level_on)
 # Make sprite groups
-pixels = pygame.sprite.Group()
-pixels.add(pixel_items)
+
+
 
 player = pygame.sprite.Group()
 player.add(ship)
-
+arrows = pygame.sprite.Group()
 spells1 = pygame.sprite.Group()
 spells2 = pygame.sprite.Group()
 
@@ -609,6 +999,12 @@ mobs.add(mob1)
 
 
 bombs = pygame.sprite.Group()
+vel_left = False
+vel_right = False
+vel_up = False
+vel_down = False
+even_x = False
+even_y = False
 # Game loop
 done = False
 
@@ -622,7 +1018,8 @@ while not done:
             if event.key == pygame.K_ESCAPE:
                 done = True
             if event.key == pygame.K_1:
-                ship.cast_fire(mouse_pos)
+                pass
+##                ship.cast_fire(mouse_pos)
 
     
 
@@ -631,24 +1028,125 @@ while not done:
 
     
     pressed = pygame.key.get_pressed()
-
+    for a in arrows:
+        a.kill()
+    if pressed[pygame.K_1]:
+        ship.make_arrow(mouse_pos)
+    if not pressed[pygame.K_1]:
+        for a in arrows:
+            ship.cast_fire(a)####################################################################
+        
+        
+    vel_left = False
+    vel_right = False
+    vel_up = False
+    vel_down = False
+    even_x = False
+    even_y = False
+    
+    
     if pressed[pygame.K_LEFT]:
+        vel_left = True
+
+    if pressed[pygame.K_RIGHT]:
+        vel_right = True
+
+    if pressed[pygame.K_UP]:
+        vel_up = True
+
+    if pressed[pygame.K_DOWN]:
+        vel_down = True
+
+
+    if vel_left == True and vel_up == vel_down:
         mob1.move_right(ship)
         for s in spells1:
             s.move_right(ship)
-        for b in bombs:
-            b.move_right(ship)
-    elif pressed[pygame.K_RIGHT]:
+        for p in pixels:
+            p.move_right(ship)
+    
+    if vel_right == True and vel_up == vel_down:
         mob1.move_left(ship)
         for s in spells1:
             s.move_left(ship)
-        for b in bombs:
-            b.move_left(ship)
+        for p in pixels:
+            p.move_left(ship)
+
+    if vel_left == True and vel_up != vel_down:
+        mob1.move_right_half(ship)
+        for s in spells1:
+            s.move_right_half(ship)
+        for p in pixels:
+            p.move_right_half(ship)
+    
+    if vel_right == True and vel_up != vel_down:
+        mob1.move_left_half(ship)
+        for s in spells1:
+            s.move_left_half(ship)
+        for p in pixels:
+            p.move_left_half(ship)
+    for p in pixels:
+        if p.rect.x%(ship.speed) == 0:
+            even_x = True
+        
+    if vel_up != vel_down or even_x == False:
+        ship.update_horizontal_half()
+    else:
+        ship.update_horizontal()       
+    
+    
+        
+    if vel_up == True and vel_left ==  vel_right:
+        mob1.move_down(ship)
+        for s in spells1:
+            s.move_down(ship)
+        for p in pixels:
+            p.move_down(ship)
+    
+    if vel_down == True and vel_left ==  vel_right:
+        mob1.move_up(ship)
+        for s in spells1:
+            s.move_up(ship)
+        for p in pixels:
+            p.move_up(ship)
+
+    if vel_up == True and vel_left !=  vel_right:
+        mob1.move_down_half(ship)
+        for s in spells1:
+            s.move_down_half(ship)
+        for p in pixels:
+            p.move_down_half(ship)
+    
+    if vel_down == True and vel_left !=  vel_right:
+        mob1.move_up_half(ship)
+        for s in spells1:
+            s.move_up_half(ship)
+        for p in pixels:
+            p.move_up_half(ship)
+    for p in pixels:
+        if p.rect.y%(ship.speed) == 0:
+            even_y = True
+
+
+    
+
+    if vel_left != vel_right or even_y == False:
+        ship.update_vertical_half()
+    else:
+        ship.update_vertical()
+            
+    
+    
 
 ##    if pressed[pygame.K_LEFT]:
 ##        ship.move_left()
 ##    elif pressed[pygame.K_RIGHT]:
 ##        ship.move_right()
+
+    #wall to player1
+        
+
+
         
     
     # Game logic (Check for collisions, update points, etc.)
@@ -662,7 +1160,7 @@ while not done:
 ##        mobs.add(Mob(500, 64, ship_img))
 
     pixels.update(spells1, mobs)
-    player.update()
+       
     spells1.update(beat)
 
     spells2.update()
@@ -679,11 +1177,12 @@ while not done:
         
     # Drawing code (Describe the picture. It isn't actually drawn yet.)
     screen.fill(GREEN)
-##    pixels.draw(screen)
+    pixels.draw(screen)
+    arrows.draw(screen)
     spells1.draw(screen)
     spells2.draw(screen)
     player.draw(screen)
-    mobs.draw(screen)
+##    mobs.draw(screen)
     bombs.draw(screen)
     
 
