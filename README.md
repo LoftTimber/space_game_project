@@ -1,3 +1,11 @@
+# Space Wars
+## About
+## How to play
+Move with the arrow keys
+Use the mouse to aim and shoot
+
+
+
 ## Welcome to GitHub Pages
 
 You can use the [editor on GitHub](https://github.com/LoftTimber/space_game_project/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
