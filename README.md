@@ -1,6 +1,6 @@
 # Hero Simulartor
 ## About
-Your a hero
+You're a hero
 ## How to play
 - Move with the arrow keys
 - Use the mouse to aim and shoot
