@@ -1,8 +1,8 @@
 # Space Wars
 ## About
 ## How to play
--Move with the arrow keys
--Use the mouse to aim and shoot
+- Move with the arrow keys
+- Use the mouse to aim and shoot
 
 
 
