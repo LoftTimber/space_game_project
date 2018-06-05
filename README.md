@@ -1,5 +1,6 @@
-# Space Wars
+# Hero Simulartor
 ## About
+Your a hero
 ## How to play
 - Move with the arrow keys
 - Use the mouse to aim and shoot
