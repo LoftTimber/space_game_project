@@ -18,7 +18,7 @@ pygame.init()
 WIDTH = 704
 HEIGHT = 704
 SIZE = (WIDTH, HEIGHT)
-TITLE = "Space War"
+TITLE = "Hero Simulator"
 screen = pygame.display.set_mode(SIZE)      ########################### work on stair case to funnel trap evode
 pygame.display.set_caption(TITLE)
 
@@ -126,11 +126,10 @@ class Pixel(pygame.sprite.Sprite):
         
 
         hit_list = pygame.sprite.spritecollide(self, spells1, False)
-        for s in spells1:
-            s.hp = s.hp
+        
         for hit in hit_list:
             if self.type == "black":
-                s.hp -= 1
+                hit.hp -= 1
 
             
 ##        go_left = False
